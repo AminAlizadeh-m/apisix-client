@@ -1,0 +1,28 @@
+{
+  "name": "apisix-client",
+  "version": "1.0.0",
+  "description": "The apisix typescript client package.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AminAlizadeh-m/apisix-client.git"
+  },
+  "keywords": [
+    "apisix",
+    "gateway",
+    "typescript",
+    "javascript",
+    "client",
+    "api",
+    "apache"
+  ],
+  "author": "Amin Alizadeh <aminalizadeh.developer@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/AminAlizadeh-m/apisix-client/issues"
+  },
+  "homepage": "https://github.com/AminAlizadeh-m/apisix-client#readme"
+}
