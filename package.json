@@ -1,10 +1,18 @@
 {
   "name": "apisix-client",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "The apisix typescript client package.",
-  "main": "index.ts",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsup",
+    "lint": "eslint src/**/*.ts",
+    "format": "eslint src/**/*.ts --fix",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -24,5 +32,17 @@
   "bugs": {
     "url": "https://github.com/AminAlizadeh-m/apisix-client/issues"
   },
-  "homepage": "https://github.com/AminAlizadeh-m/apisix-client#readme"
+  "homepage": "https://github.com/AminAlizadeh-m/apisix-client#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.9.0",
+    "@typescript-eslint/parser": "^7.9.0",
+    "eslint": "^8.57.0",
+    "husky": "^9.0.11",
+    "prettier": "^3.2.5",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "axios": "^1.6.8"
+  }
 }
