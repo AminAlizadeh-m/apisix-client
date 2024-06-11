@@ -1,10 +1,5 @@
-import {
-  CreateUpstreamResponse,
-  GetUpstreamResponse,
-  UpdateUpstreamResponse,
-  UpstreamDef,
-} from '../../types/admin/upstream';
-import { PaginationResponse } from '../../types/client';
+import { Upstream, UpstreamDef } from '../../types/admin/upstream';
+import { CreateResponse, GetResponse, PaginationResponse } from '../../types/client';
 import ApisixAdminClient from '../client';
 
 export default class UpstreamService {
@@ -16,10 +11,10 @@ export default class UpstreamService {
   /**
    * Fetches specified Upstream by id.
    * @param id unique id of upstream
-   * @returns {GetUpstreamResponse}
+   * @returns {GetResponse<Upstream>}
    */
-  get = async (id: string): Promise<GetUpstreamResponse> => {
-    const res = await this.client.request<GetUpstreamResponse>('get', `/apisix/admin/upstreams/${id}`);
+  get = async (id: string): Promise<GetResponse<Upstream>> => {
+    const res = await this.client.request<GetResponse<Upstream>>('get', `/apisix/admin/upstreams/${id}`);
     return res.data;
   };
 
@@ -38,8 +33,8 @@ export default class UpstreamService {
     name?: string,
     page?: string,
     page_size?: string,
-  ): Promise<PaginationResponse<GetUpstreamResponse>> => {
-    const res = await this.client.request<PaginationResponse<GetUpstreamResponse>>(
+  ): Promise<PaginationResponse<GetResponse<Upstream>>> => {
+    const res = await this.client.request<PaginationResponse<GetResponse<Upstream>>>(
       'get',
       `/apisix/admin/upstreams`,
       undefined,
@@ -58,11 +53,10 @@ export default class UpstreamService {
   /**
    * Creates an Upstream and assigns a random id.
    * @param config {UpstreamDef}
-   * @returns {CreateUpstreamResponse}
+   * @returns {CreateResponse<Upstream>}
    */
-  create = async (config: UpstreamDef): Promise<CreateUpstreamResponse> => {
-    const data = config;
-    const res = await this.client.request<CreateUpstreamResponse>('post', '/apisix/admin/upstreams', data);
+  create = async (config: UpstreamDef): Promise<CreateResponse<Upstream>> => {
+    const res = await this.client.request<CreateResponse<Upstream>>('post', '/apisix/admin/upstreams', config);
 
     return res.data;
   };
@@ -71,11 +65,10 @@ export default class UpstreamService {
    * Creates an Upstream with the specified id.
    * @param id unique id of upstream
    * @param config {UpstreamDef}
-   * @returns {CreateUpstreamResponse}
+   * @returns {CreateResponse<Upstream>}
    */
-  upsert = async (id: string, config: UpstreamDef): Promise<CreateUpstreamResponse> => {
-    const data = { id, ...config };
-    const res = await this.client.request<CreateUpstreamResponse>('put', '/apisix/admin/upstreams', data);
+  upsert = async (id: string, config: UpstreamDef): Promise<CreateResponse<Upstream>> => {
+    const res = await this.client.request<CreateResponse<Upstream>>('put', `/apisix/admin/upstreams/${id}`, config);
 
     return res.data;
   };
@@ -84,24 +77,24 @@ export default class UpstreamService {
    * Updates the selected attributes of the specified, existing Upstream. To delete an attribute, set value of attribute set to null.
    * @param id unique id of upstream
    * @param config {UpstreamDef}
-   * @returns {UpdateUpstreamResponse}
+   * @returns {CreateResponse<Upstream>}
    */
-  update = async (id: string, config: UpstreamDef): Promise<UpdateUpstreamResponse> => {
-    const res = await this.client.request<UpdateUpstreamResponse>('put', `/apisix/admin/upstreams/${id}`, config);
+  update = async (id: string, config: UpstreamDef): Promise<CreateResponse<Upstream>> => {
+    const res = await this.client.request<CreateResponse<Upstream>>('patch', `/apisix/admin/upstreams/${id}`, config);
 
     return res.data;
   };
 
   /**
    * Updates the attribute specified in the path. The values of other attributes remain unchanged.
-   * @param id
-   * @param path
-   * @param config
-   * @returns
+   * @param id unique id of upstream
+   * @param path like node
+   * @param config {UpstreamDef}
+   * @returns {CreateResponse<Upstream>}
    */
-  updateByPath = async (id: string, path: string, config: UpstreamDef) => {
-    const res = await this.client.request<UpdateUpstreamResponse>(
-      'put',
+  updateByPath = async (id: string, path: string, config: UpstreamDef): Promise<CreateResponse<Upstream>> => {
+    const res = await this.client.request<CreateResponse<Upstream>>(
+      'patch',
       `/apisix/admin/upstreams/${id}/${path}`,
       config,
     );
@@ -116,5 +109,19 @@ export default class UpstreamService {
    */
   delete = async (id: string): Promise<void> => {
     await this.client.request<null>('delete', `/apisix/admin/upstreams/${id}`);
+  };
+
+  /**
+   * Return result of upstream exists checking by name and exclude id.
+   * @param name
+   * @param exclude
+   * @returns
+   */
+  exists = async (name?: string, exclude?: string): Promise<boolean> => {
+    const res = await this.client.request<boolean>('get', `/apisix/admin/notexist/upstreams`, undefined, {
+      name,
+      exclude,
+    });
+    return res.data;
   };
 }

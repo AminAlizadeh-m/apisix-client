@@ -1,9 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-export interface BaseInfo {
-  id: any;
-  create_time: string;
-  update_time: string;
-}
+
+import { BaseInfo } from '../client';
 
 export interface Node {
   host: string;
@@ -92,14 +89,3 @@ export interface UpstreamDef {
 }
 
 export interface Upstream extends UpstreamDef, BaseInfo {}
-export interface GetUpstreamResponse {
-  modifiedIndex: number;
-  value: Upstream;
-  key: string;
-  createdIndex: number;
-}
-export interface CreateUpstreamResponse {
-  value: Upstream;
-  key: string;
-}
-export interface UpdateUpstreamResponse extends CreateUpstreamResponse {}
