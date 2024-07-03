@@ -1,11 +1,15 @@
-import { Upstream, UpstreamDef } from '../../types/admin/upstream';
+import { isAxiosError } from 'axios';
+import { Upstream, UpstreamDef, UpstreamGetListRequest } from '../../types/admin/upstream';
 import { CreateResponse, GetResponse, PaginationResponse } from '../../types/client';
 import ApisixAdminClient from '../client';
+import ValidationService from './validation';
 
 export default class UpstreamService {
   private readonly client: ApisixAdminClient;
+  private readonly validationService: ValidationService;
   constructor(client: ApisixAdminClient) {
     this.client = client;
+    this.validationService = new ValidationService(client);
   }
 
   /**
@@ -14,7 +18,7 @@ export default class UpstreamService {
    * @returns {GetResponse<Upstream>}
    */
   get = async (id: string): Promise<GetResponse<Upstream>> => {
-    const res = await this.client.request<GetResponse<Upstream>>('get', `/apisix/admin/upstreams/${id}`);
+    const res = await this.client.request<null, GetResponse<Upstream>>('get', `/apisix/admin/upstreams/${id}`);
     return res.data;
   };
 
@@ -34,7 +38,7 @@ export default class UpstreamService {
     page?: string,
     page_size?: string,
   ): Promise<PaginationResponse<GetResponse<Upstream>>> => {
-    const res = await this.client.request<PaginationResponse<GetResponse<Upstream>>>(
+    const res = await this.client.request<UpstreamGetListRequest, PaginationResponse<GetResponse<Upstream>>>(
       'get',
       `/apisix/admin/upstreams`,
       undefined,
@@ -55,8 +59,17 @@ export default class UpstreamService {
    * @param config {UpstreamDef}
    * @returns {CreateResponse<Upstream>}
    */
-  create = async (config: UpstreamDef): Promise<CreateResponse<Upstream>> => {
-    const res = await this.client.request<CreateResponse<Upstream>>('post', '/apisix/admin/upstreams', config);
+  create = async (def: UpstreamDef, validate = false): Promise<CreateResponse<Upstream>> => {
+    if (validate) {
+      await this.validationService.validate('upstreams', def);
+    }
+    const res = await this.client.request<UpstreamDef, CreateResponse<Upstream>>(
+      'post',
+      '/apisix/admin/upstreams',
+      def,
+    );
+
+    console.log(res);
 
     return res.data;
   };
@@ -67,8 +80,15 @@ export default class UpstreamService {
    * @param config {UpstreamDef}
    * @returns {CreateResponse<Upstream>}
    */
-  upsert = async (id: string, config: UpstreamDef): Promise<CreateResponse<Upstream>> => {
-    const res = await this.client.request<CreateResponse<Upstream>>('put', `/apisix/admin/upstreams/${id}`, config);
+  upsert = async (id: string, config: UpstreamDef, validate = false): Promise<CreateResponse<Upstream>> => {
+    if (validate) {
+      await this.validationService.validate('upstreams', config);
+    }
+    const res = await this.client.request<UpstreamDef, CreateResponse<Upstream>>(
+      'put',
+      `/apisix/admin/upstreams/${id}`,
+      config,
+    );
 
     return res.data;
   };
@@ -79,8 +99,15 @@ export default class UpstreamService {
    * @param config {UpstreamDef}
    * @returns {CreateResponse<Upstream>}
    */
-  update = async (id: string, config: UpstreamDef): Promise<CreateResponse<Upstream>> => {
-    const res = await this.client.request<CreateResponse<Upstream>>('patch', `/apisix/admin/upstreams/${id}`, config);
+  update = async (id: string, config: UpstreamDef, validate = false): Promise<CreateResponse<Upstream>> => {
+    if (validate) {
+      await this.validationService.validate('upstreams', config);
+    }
+    const res = await this.client.request<UpstreamDef, CreateResponse<Upstream>>(
+      'patch',
+      `/apisix/admin/upstreams/${id}`,
+      config,
+    );
 
     return res.data;
   };
@@ -92,8 +119,16 @@ export default class UpstreamService {
    * @param config {UpstreamDef}
    * @returns {CreateResponse<Upstream>}
    */
-  updateByPath = async (id: string, path: string, config: UpstreamDef): Promise<CreateResponse<Upstream>> => {
-    const res = await this.client.request<CreateResponse<Upstream>>(
+  updateByPath = async (
+    id: string,
+    path: string,
+    config: UpstreamDef,
+    validate = false,
+  ): Promise<CreateResponse<Upstream>> => {
+    if (validate) {
+      await this.validationService.validate('upstreams', config);
+    }
+    const res = await this.client.request<UpstreamDef, CreateResponse<Upstream>>(
       'patch',
       `/apisix/admin/upstreams/${id}/${path}`,
       config,
@@ -108,20 +143,23 @@ export default class UpstreamService {
    * @returns {void}
    */
   delete = async (id: string): Promise<void> => {
-    await this.client.request<null>('delete', `/apisix/admin/upstreams/${id}`);
+    await this.client.request<void, void>('delete', `/apisix/admin/upstreams/${id}`);
   };
 
   /**
-   * Return result of upstream exists checking by name and exclude id.
-   * @param name
-   * @param exclude
-   * @returns
+   * Is upstream exists ?
+   * @param id unique id of upstream
+   * @returns {boolean}
    */
-  exists = async (name?: string, exclude?: string): Promise<boolean> => {
-    const res = await this.client.request<boolean>('get', `/apisix/admin/notexist/upstreams`, undefined, {
-      name,
-      exclude,
-    });
-    return res.data;
+  isExists = async (id: string): Promise<boolean> => {
+    try {
+      await this.get(id);
+      return true;
+    } catch (error) {
+      if (isAxiosError(error) && error.status === 404) {
+        return false;
+      }
+      throw error;
+    }
   };
 }

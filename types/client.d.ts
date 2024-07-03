@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { CreateAxiosDefaults } from 'axios';
+import { IOptions } from 'etcd3';
 
 export interface ConnectionConfig extends CreateAxiosDefaults {}
+export interface EtcdConnectionConfig extends IOptions {}
 export type QueryObjectSchema = Record<string, string | number | undefined>;
 export interface ServerResponse<ResponseType> {
   data: ResponseType;
@@ -26,4 +28,9 @@ export interface GetResponse<T> {
 export interface CreateResponse<T> {
   value: T;
   key: string;
+}
+
+export interface PaginationRequest<T> {
+  page?: T;
+  page_size?: T;
 }
