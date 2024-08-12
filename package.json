@@ -1,6 +1,6 @@
 {
   "name": "apisix-client",
-  "version": "1.0.94",
+  "version": "1.0.95",
   "description": "The apisix typescript client package.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
