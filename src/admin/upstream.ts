@@ -69,8 +69,6 @@ export default class UpstreamService {
       def,
     );
 
-    console.log(res);
-
     return res.data;
   };
 

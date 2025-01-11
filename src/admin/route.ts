@@ -75,6 +75,7 @@ export default class RouteService {
   };
 
   filter = async (
+    upstream_id?: string,
     name?: string,
     uri?: string,
     status?: '0' | '1',
@@ -145,6 +146,9 @@ export default class RouteService {
           }
         });
       }
+    }
+    if (upstream_id) {
+      routes = routes.filter((route) => (route.value.upstream_id as string).includes(upstream_id));
     }
 
     return {

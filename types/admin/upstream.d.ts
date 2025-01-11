@@ -60,6 +60,8 @@ export interface HealthChecker {
 export interface UpstreamTLS {
   client_cert?: string;
   client_key?: string;
+  tls_verify?: boolean;
+  verify?: boolean;
 }
 
 export interface UpstreamKeepalivePool {
