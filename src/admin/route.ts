@@ -31,6 +31,14 @@ export default class RouteService {
     return res.data;
   };
 
+  getRouteByPath = async (path: string) => {
+    const res = await this.client.request<null, GetResponse<Route>>(
+      'get',
+      `/apisix/admin/routes?uri=${encodeURIComponent(path)}&label=&page=1&page_size=100&host=&desc=&id=`,
+    );
+    return res.data;
+  };
+
   /**
    * Fetches a list of all configured Routes.
    * @param name
